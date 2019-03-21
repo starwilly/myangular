@@ -83,6 +83,19 @@ describe('Scope', () => {
             expect(scope.counter).toBe(1);
         });
 
+        it('calls listener with new value as old value the first time', () => {
+            scope.someValue = 123;
+            let oldValueGiven;
+
+            scope.$watch(
+                (scope) => scope.someValue,
+                (newValue, oldValue) => oldValueGiven = oldValue
+            );
+
+            scope.$digest();
+            expect(oldValueGiven).toBe(123);
+        });
+
     });
 
 });
