@@ -7,7 +7,7 @@ function initWatchVal() {}
 Scope.prototype.$watch = function (watchFn, listenerFn) {
     const watcher = {
         watchFn,
-        listenerFn,
+        listenerFn: listenerFn || (() => {}),
         last: initWatchVal
     };
     this.$$watchers.push(watcher);

@@ -96,6 +96,16 @@ describe('Scope', () => {
             expect(oldValueGiven).toBe(123);
         });
 
+        it('may have watchers that omit the listener function', () => {
+            const watchFn = jest.fn().mockReturnValue('something');
+
+            scope.$watch(watchFn);
+            scope.$digest();
+
+            expect(watchFn).toHaveBeenCalled();
+
+        });
+
     });
 
 });
