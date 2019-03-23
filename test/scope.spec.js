@@ -106,6 +106,35 @@ describe('Scope', () => {
 
         });
 
+        it('trigger chained watchers in the same digest', () => {
+            scope.name = 'Jane';
+
+            scope.$watch(
+                scope => scope.upperName,
+                (newValue, oldValue, scope) => {
+                    if (newValue) {
+                        scope.initial = newValue.substring(0, 1) + '.'
+                    }
+                }
+            )
+
+            scope.$watch(
+                scope => scope.name,
+                (newValue, oldValue, scope) => {
+                    if (newValue) {
+                        scope.upperName = newValue.toUpperCase();
+                    }
+                }
+            )
+
+            scope.$digest();
+            expect(scope.initial).toBe('J.');
+
+            scope.name = 'Bob';
+            scope.$digest();
+            expect(scope.initial).toBe('B.');
+        });
+
     });
 
 });
