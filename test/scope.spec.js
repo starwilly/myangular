@@ -1,4 +1,5 @@
 'use stric';
+import _ from 'lodash';
 
 import {
     Scope
@@ -150,6 +151,28 @@ describe('Scope', () => {
             )
 
             expect(() => scope.$digest()).toThrow();
+
+        });
+
+        it('ends the digest when the last watch is clean', () => {
+            scope.array = _.range(100);
+            let watchExecutions = 0;
+
+            _.times(100, function (i) {
+                scope.$watch(
+                    function (scope) {
+                        watchExecutions++;
+                        return scope.array[i];
+                    }
+                );
+            });
+
+            scope.$digest();
+            expect(watchExecutions).toBe(200);
+
+            scope.array[0] = 420;
+            scope.$digest();
+            expect(watchExecutions).toBe(301);
 
         });
 

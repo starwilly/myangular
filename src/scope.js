@@ -1,3 +1,6 @@
+import _ from 'lodash';
+
+
 export function Scope() {
     this.$$watchers = [];
 }
@@ -16,6 +19,8 @@ Scope.prototype.$watch = function (watchFn, listenerFn) {
 Scope.prototype.$digest = function () {
     let ttl = 10; //time to live
     let dirty;
+    this.$$lastDirtyWatch = null;
+
     do {
         dirty = this.$$digestOnce();
         if (dirty && (ttl--) === 0) {
@@ -27,18 +32,21 @@ Scope.prototype.$digest = function () {
 
 Scope.prototype.$$digestOnce = function () {
     const self = this;
-    let dirty = false;
-    this.$$watchers.forEach(watcher => {
+    let dirty = null;
+    _.forEach(this.$$watchers, watcher => {
         let newValue = watcher.watchFn(self);
         let oldValue = watcher.last;
         if (newValue !== oldValue) {
+            self.$$lastDirtyWatch = watcher;
             watcher.last = newValue;
             watcher.listenerFn(newValue,
                 oldValue === initWatchVal ? newValue : oldValue,
                 self
             );
             dirty = true;
+        } else if (self.$$lastDirtyWatch === watcher) {
+            return false;
         }
-    })
+    });
     return dirty;
 }
