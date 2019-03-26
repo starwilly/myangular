@@ -7,10 +7,19 @@ export function Scope() {
 
 function initWatchVal() {}
 
-Scope.prototype.$watch = function (watchFn, listenerFn) {
+Scope.prototype.$$areEqual = function (newValue, oldValue, valueEq) {
+    if (valueEq) {
+        return _.isEqual(newValue, oldValue);
+    } else {
+        return newValue === oldValue;
+    }
+}
+
+Scope.prototype.$watch = function (watchFn, listenerFn, valueEq) {
     const watcher = {
         watchFn,
         listenerFn: listenerFn || (() => {}),
+        valueEq: !!valueEq,
         last: initWatchVal
     };
     this.$$watchers.push(watcher);
@@ -36,9 +45,9 @@ Scope.prototype.$$digestOnce = function () {
     _.forEach(this.$$watchers, watcher => {
         let newValue = watcher.watchFn(self);
         let oldValue = watcher.last;
-        if (newValue !== oldValue) {
+        if (!self.$$areEqual(newValue, oldValue, watcher.valueEq)) {
             self.$$lastDirtyWatch = watcher;
-            watcher.last = newValue;
+            watcher.last = (watcher.valueEq ? _.cloneDeep(newValue) : newValue);
             watcher.listenerFn(newValue,
                 oldValue === initWatchVal ? newValue : oldValue,
                 self
