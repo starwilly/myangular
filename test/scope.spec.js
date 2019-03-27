@@ -194,6 +194,23 @@ describe('Scope', () => {
             expect(scope.counter).toBe(2);
         });
 
+        it('correctly handle NaNs', () => {
+            scope.aValue = 0 / 0; // NaN
+            scope.counter = 0;
+
+            scope.$watch(
+                scope => scope.aValue,
+                (oldValue, newValue, scope) => scope.counter++
+            )
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+
+        });
+
     });
 
 });
