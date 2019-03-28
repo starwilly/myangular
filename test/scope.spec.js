@@ -211,6 +211,49 @@ describe('Scope', () => {
 
         });
 
+        it('catch exceptions in watch function and continue', () => {
+            scope.aValue = 'abc';
+            scope.counter = 0;
+
+            scope.$watch(
+                // eslint-disable-next-line no-unused-vars
+                scope => {
+                    throw 'Error';
+                },
+            );
+
+            scope.$watch(
+                scope => scope.aValue,
+                (newValue, oldValue, scope) => scope.counter++
+            )
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+        });
+
+        it('catch exceptions in listener function and continue', () => {
+            scope.aValue = 'abc';
+            scope.counter = 0;
+
+            scope.$watch(
+                scope => scope.aValue,
+                // eslint-disable-next-line no-unused-vars
+                scope => {
+                    throw 'Error'
+                }
+            );
+
+            scope.$watch(
+                scope => scope.aValue,
+                (newValue, oldValue, scope) => scope.counter++
+            )
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+
+        });
+
+
     });
 
 });
